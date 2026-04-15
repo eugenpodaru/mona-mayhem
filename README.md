@@ -1,40 +1,80 @@
 🌐 [Português (Brasil)](README.pt_BR.md) | [Español](README.es.md)
 
+<div align="center">
+
 # 🎮 Mona Mayhem
 
-**VS Code & GitHub Copilot CLI Workshop** — Build a GitHub Contribution Battle Arena
+### Build a retro arcade-style GitHub contribution battle with Astro and GitHub Copilot
 
-A workshop template for building a retro arcade-themed website with Astro that compares GitHub contribution graphs of two users. This is the **starting point** — you'll build the app step by step using GitHub Copilot.
+**A hands-on workshop template for learning modern Copilot workflows in VS Code or the terminal.**
 
 ![Mona Mayhem Screenshot](https://github.com/user-attachments/assets/5eca79e2-cb9f-4e93-aa0d-23666ebde3b7)
-*What you'll build by the end of the workshop*
 
-## 📚 Workshop
+*The final experience: a playful GitHub contribution showdown between two developers*
 
-The workshop supports two tracks — follow the one that matches your preferred workflow:
+</div>
 
-- **VS Code track** — Chat, Plan Mode, Agent Mode, background agents, and editor-native review loops
-- **CLI track** — `copilot`, `@file` context, `/plan`, autonomous edits, `/fleet`, `/delegate`, and `/review`
+## Why this repo exists
 
-| Part | Title | Copilot Focus |
-|------|-------|---------------|
-| [00](workshop/00-overview.md) | Overview | Track selection and learning goals |
-| [01](workshop/01-setup.md) | Setup & Context Engineering | Instructions, permissions, and environment setup |
-| [02](workshop/02-plan-and-scaffold.md) | Plan & Scaffold | Planning the API and page architecture |
-| [03](workshop/03-agent-mode.md) | Build the Game | Agentic implementation and iteration |
-| [04](workshop/04-design-vibes.md) | Design-First Theming | Visual design planning and implementation |
-| [05](workshop/05-polish.md) | Polish & Parallel Work | Parallelism, reviews, and quality passes |
-| [06](workshop/06-bonus.md) | Bonus & Extensions | Open-ended feature ideas and extra Copilot experiments |
+Most workshops teach features in isolation. **Mona Mayhem** teaches them by having you build something visual, weird, and fun: a pixel-art inspired web app that compares two GitHub contribution graphs like an arcade face-off.
 
-## 🚀 Quick Start
+By the end, you will have practiced how to:
 
-1. **Create your own repo first** by either:
-   - clicking **Use this template** to create a new repo, or
-   - forking this repository.
-2. Choose your workshop path:
-   - **VS Code:** clone your repo and open it in VS Code.
-   - **GitHub Copilot CLI:** clone your repo locally, install `copilot`, and work from your terminal.
-3. Follow the [workshop guide](workshop/00-overview.md)
+- shape good prompts and project instructions
+- plan before coding
+- use Copilot for multi-file implementation
+- iterate on design and UX with fast feedback
+- work in parallel with agents and review loops
+
+## What you build
+
+- **A retro arcade landing page** with strong visual personality
+- **A contribution battle arena** that compares two GitHub usernames
+- **An Astro app** with a server-rendered page and API route
+- **A project you can keep extending** after the workshop ends
+
+## Choose your workflow
+
+This workshop supports two tracks so you can learn in the environment you actually use:
+
+| Track | Best for | You'll practice |
+|------|----------|-----------------|
+| **VS Code** | Editor-first workflows | Chat, Plan Mode, Agent Mode, background agents, review loops |
+| **GitHub Copilot CLI** | Terminal-first workflows | `copilot`, `@file` context, `/plan`, autonomous edits, `/fleet`, `/delegate`, `/review` |
+
+Start with the [workshop overview](workshop/00-overview.md) and follow the path that fits your setup.
+
+## Workshop journey
+
+| Part | Title | Outcome |
+|------|-------|---------|
+| [00](workshop/00-overview.md) | Overview | Pick your track and understand the end goal |
+| [01](workshop/01-setup.md) | Setup & Context Engineering | Prepare your tools and teach Copilot about the repo |
+| [02](workshop/02-plan-and-scaffold.md) | Plan & Scaffold | Design the page and API before implementation |
+| [03](workshop/03-agent-mode.md) | Build the Game | Create the battle experience with agentic help |
+| [04](workshop/04-design-vibes.md) | Design-First Theming | Push the retro arcade aesthetic |
+| [05](workshop/05-polish.md) | Polish & Parallel Work | Improve quality, resilience, and UX |
+| [06](workshop/06-bonus.md) | Bonus & Extensions | Add your own twists and experiments |
+
+## Quick start
+
+1. **Create your own copy** of this repository using **Use this template** or by forking it.
+2. **Clone it locally** and open it in your preferred workflow:
+   - **VS Code track:** open the repo in VS Code.
+   - **CLI track:** open the repo in your terminal with GitHub Copilot CLI installed.
+3. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+4. **Start the app**:
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Begin the workshop** at [workshop/00-overview.md](workshop/00-overview.md).
 
 ## Prerequisites
 
@@ -52,15 +92,23 @@ The workshop supports two tracks — follow the one that matches your preferred 
 ### CLI track
 
 - GitHub Copilot CLI (`copilot`)
-- Node.js 22+ if you plan to install the CLI via `npm install -g @github/copilot`
-- Or Homebrew / WinGet if you prefer a native package manager install
+- Node.js 22+ if installing via `npm install -g @github/copilot`
+- Or Homebrew / WinGet if you prefer native package manager install
 
-## Technology Stack
+## Tech stack
 
-- **Framework**: [Astro](https://astro.build/) v5
-- **Runtime**: Node.js with [@astrojs/node](https://docs.astro.build/en/guides/integrations-guide/node/) adapter
-- **Font**: Press Start 2P (retro gaming font)
-- **API**: GitHub's contribution graph API
+- **Framework:** [Astro](https://astro.build/) v5
+- **Runtime:** Node.js with [@astrojs/node](https://docs.astro.build/en/guides/integrations-guide/node/) adapter
+- **Language:** TypeScript
+- **API source:** GitHub contribution graph endpoint
+- **Style direction:** retro arcade / pixel-inspired UI
+
+## Why it works well as a workshop
+
+- **Fast feedback loop** — you can see progress in the browser immediately
+- **Small but real architecture** — UI, API route, styling, and data fetching
+- **High creativity ceiling** — every participant can take the design in a different direction
+- **Great for Copilot practice** — planning, coding, polishing, and reviewing all matter here
 
 ## License
 
