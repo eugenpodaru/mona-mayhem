@@ -5,10 +5,405 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Mona Mayhem</title>
+		<title>Mona Mayhem - GitHub Contribution Battle Arena</title>
+		<style>
+			:root {
+				color-scheme: light;
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				background: #f7f7f7;
+				color: #1a1a1a;
+			}
+
+			main {
+				max-width: 900px;
+				margin: 0 auto;
+				padding: 2rem 1rem 3rem;
+			}
+
+			h1 {
+				margin-bottom: 0.5rem;
+				font-size: 1.8rem;
+			}
+
+			.subtitle {
+				margin-top: 0;
+				margin-bottom: 1.5rem;
+				color: #4b4b4b;
+			}
+
+			.panel {
+				background: #ffffff;
+				border: 1px solid #d7d7d7;
+				border-radius: 0.5rem;
+				padding: 1rem;
+			}
+
+			.battle-form {
+				display: grid;
+				gap: 1rem;
+			}
+
+			.input-grid {
+				display: grid;
+				gap: 1rem;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			label {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 0.35rem;
+			}
+
+			input[type='text'] {
+				width: 100%;
+				padding: 0.6rem 0.7rem;
+				border: 1px solid #bfbfbf;
+				border-radius: 0.375rem;
+				font-size: 1rem;
+			}
+
+			.actions {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+
+			button[type='submit'] {
+				padding: 0.65rem 1rem;
+				font-size: 1rem;
+				font-weight: 600;
+				border: 1px solid #1a1a1a;
+				border-radius: 0.375rem;
+				background: #1a1a1a;
+				color: #ffffff;
+				cursor: pointer;
+			}
+
+			button[type='submit']:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			.status-message {
+				min-height: 1.25rem;
+				font-weight: 500;
+				color: #444;
+			}
+
+			.status-message.error {
+				color: #9b1c1c;
+			}
+
+			.status-message.success {
+				color: #0a5f35;
+			}
+
+			.results {
+				margin-top: 1rem;
+				display: grid;
+				gap: 1rem;
+			}
+
+			.players {
+				display: grid;
+				gap: 1rem;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.player-card h2 {
+				margin-top: 0;
+				font-size: 1.1rem;
+			}
+
+			.player-card dl {
+				margin: 0;
+				display: grid;
+				grid-template-columns: auto 1fr;
+				gap: 0.35rem 0.75rem;
+			}
+
+			.player-card dt {
+				font-weight: 600;
+			}
+
+			.player-card dd {
+				margin: 0;
+			}
+
+			.player-card .error-text {
+				margin: 0;
+				color: #9b1c1c;
+			}
+
+			.verdict {
+				font-weight: 700;
+			}
+
+			@media (max-width: 700px) {
+				.input-grid,
+				.players {
+					grid-template-columns: 1fr;
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Mona Mayhem</h1>
-		<p>Welcome to Mona Mayhem! Time to build a GitHub Contribution Battle Arena.</p>
+		<main>
+			<header>
+				<h1>Mona Mayhem - GitHub Contribution Battle Arena</h1>
+				<p class="subtitle">Enter two players, launch the battle, and compare contribution totals.</p>
+			</header>
+
+			<section class="panel" aria-labelledby="battle-form-title">
+				<h2 id="battle-form-title">Start a Battle</h2>
+				<form id="battle-form" class="battle-form" novalidate>
+					<div class="input-grid">
+						<div>
+							<label for="player-one">Player 1 Username</label>
+							<input id="player-one" name="playerOne" type="text" placeholder="octocat" autocomplete="off" required />
+						</div>
+						<div>
+							<label for="player-two">Player 2 Username</label>
+							<input id="player-two" name="playerTwo" type="text" placeholder="torvalds" autocomplete="off" required />
+						</div>
+					</div>
+					<div class="actions">
+						<button id="battle-button" type="submit">Battle</button>
+					</div>
+					<p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+				</form>
+			</section>
+
+			<section class="results" aria-labelledby="results-title">
+				<h2 id="results-title">Results</h2>
+				<div class="players">
+					<article id="player-one-card" class="panel player-card" aria-live="polite">
+						<h2>Player 1</h2>
+						<p>Waiting for battle...</p>
+					</article>
+					<article id="player-two-card" class="panel player-card" aria-live="polite">
+						<h2>Player 2</h2>
+						<p>Waiting for battle...</p>
+					</article>
+				</div>
+				<div id="verdict" class="panel verdict" aria-live="polite">No battle run yet.</div>
+			</section>
+		</main>
+
+		<script>
+			/** @typedef {{ ok: true, username: string, data: { total_contributions?: unknown }, meta?: { stale?: boolean } }} SuccessResponse */
+			/** @typedef {{ ok: false, error?: { code?: string, message?: string }, username?: string }} ErrorResponse */
+			/** @typedef {SuccessResponse | ErrorResponse} ApiResponse */
+
+			const battleForm = document.querySelector('#battle-form');
+			const playerOneInput = /** @type {HTMLInputElement | null} */ (document.querySelector('#player-one'));
+			const playerTwoInput = /** @type {HTMLInputElement | null} */ (document.querySelector('#player-two'));
+			const battleButton = /** @type {HTMLButtonElement | null} */ (document.querySelector('#battle-button'));
+			const statusMessage = document.querySelector('#status-message');
+			const verdict = document.querySelector('#verdict');
+			const playerOneCard = document.querySelector('#player-one-card');
+			const playerTwoCard = document.querySelector('#player-two-card');
+
+			if (!battleForm || !playerOneInput || !playerTwoInput || !battleButton || !statusMessage || !verdict || !playerOneCard || !playerTwoCard) {
+				throw new Error('Battle page initialization failed: required elements not found.');
+			}
+
+			let battleInProgress = false;
+
+			function setStatus(message, tone = 'neutral') {
+				statusMessage.textContent = message;
+				statusMessage.className = 'status-message';
+				if (tone === 'error') {
+					statusMessage.classList.add('error');
+				}
+				if (tone === 'success') {
+					statusMessage.classList.add('success');
+				}
+			}
+
+			function setLoading(isLoading) {
+				battleInProgress = isLoading;
+				battleButton.disabled = isLoading;
+				battleButton.textContent = isLoading ? 'Battling...' : 'Battle';
+			}
+
+			function renderPlayerPending(card, label) {
+				card.innerHTML = `<h2>${label}</h2><p>Waiting for battle...</p>`;
+			}
+
+			function renderPlayerError(card, label, username, code, message) {
+				card.innerHTML = `
+					<h2>${label}</h2>
+					<dl>
+						<dt>Username</dt><dd>${username}</dd>
+						<dt>Status</dt><dd>Failed</dd>
+					</dl>
+					<p class="error-text">${code}: ${message}</p>
+				`;
+			}
+
+			function renderPlayerSuccess(card, label, username, totalContributions, stale) {
+				card.innerHTML = `
+					<h2>${label}</h2>
+					<dl>
+						<dt>Username</dt><dd>${username}</dd>
+						<dt>Total Contributions</dt><dd>${totalContributions}</dd>
+						<dt>Data Freshness</dt><dd>${stale ? 'Stale cache' : 'Fresh'}</dd>
+					</dl>
+				`;
+			}
+
+			function getNumericTotal(response) {
+				if (!response.ok) {
+					return null;
+				}
+
+				const total = response.data?.total_contributions;
+				if (typeof total === 'number' && Number.isFinite(total)) {
+					return total;
+				}
+
+				return 0;
+			}
+
+			async function fetchPlayer(username) {
+				try {
+					const apiResponse = await fetch(`/api/contributions/${encodeURIComponent(username)}`);
+					const payload = /** @type {ApiResponse} */ (await apiResponse.json());
+					return payload;
+				} catch {
+					return {
+						ok: false,
+						error: {
+							code: 'NETWORK_ERROR',
+							message: 'Unable to reach the contributions API.',
+						},
+						username,
+					};
+				}
+			}
+
+			function updateVerdict(playerOneName, playerOneResult, playerTwoName, playerTwoResult) {
+				const oneSuccess = playerOneResult.ok;
+				const twoSuccess = playerTwoResult.ok;
+
+				if (oneSuccess && twoSuccess) {
+					const oneTotal = getNumericTotal(playerOneResult) ?? 0;
+					const twoTotal = getNumericTotal(playerTwoResult) ?? 0;
+
+					if (oneTotal > twoTotal) {
+						verdict.textContent = `${playerOneName} wins with ${oneTotal} contributions against ${twoTotal}.`;
+						return;
+					}
+
+					if (twoTotal > oneTotal) {
+						verdict.textContent = `${playerTwoName} wins with ${twoTotal} contributions against ${oneTotal}.`;
+						return;
+					}
+
+					verdict.textContent = `It's a tie. Both players have ${oneTotal} contributions.`;
+					return;
+				}
+
+				if (oneSuccess && !twoSuccess) {
+					verdict.textContent = `${playerOneName} wins by default. ${playerTwoName} could not load.`;
+					return;
+				}
+
+				if (!oneSuccess && twoSuccess) {
+					verdict.textContent = `${playerTwoName} wins by default. ${playerOneName} could not load.`;
+					return;
+				}
+
+				verdict.textContent = 'No contest. Neither player data could be loaded. Please try again.';
+			}
+
+			battleForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
+
+				if (battleInProgress) {
+					return;
+				}
+
+				const playerOneName = playerOneInput.value.trim();
+				const playerTwoName = playerTwoInput.value.trim();
+
+				if (!playerOneName || !playerTwoName) {
+					setStatus('Both usernames are required.', 'error');
+					return;
+				}
+
+				if (playerOneName.toLowerCase() === playerTwoName.toLowerCase()) {
+					setStatus('Please enter two different usernames.', 'error');
+					return;
+				}
+
+				setLoading(true);
+				setStatus('Battle in progress...');
+				renderPlayerPending(playerOneCard, 'Player 1');
+				renderPlayerPending(playerTwoCard, 'Player 2');
+				verdict.textContent = 'Running battle...';
+
+				const [playerOneResult, playerTwoResult] = await Promise.all([
+					fetchPlayer(playerOneName),
+					fetchPlayer(playerTwoName),
+				]);
+
+				if (playerOneResult.ok) {
+					renderPlayerSuccess(
+						playerOneCard,
+						'Player 1',
+						playerOneName,
+						getNumericTotal(playerOneResult) ?? 0,
+						Boolean(playerOneResult.meta?.stale)
+					);
+				} else {
+					renderPlayerError(
+						playerOneCard,
+						'Player 1',
+						playerOneName,
+						playerOneResult.error?.code ?? 'UNKNOWN_ERROR',
+						playerOneResult.error?.message ?? 'Unknown error occurred.'
+					);
+				}
+
+				if (playerTwoResult.ok) {
+					renderPlayerSuccess(
+						playerTwoCard,
+						'Player 2',
+						playerTwoName,
+						getNumericTotal(playerTwoResult) ?? 0,
+						Boolean(playerTwoResult.meta?.stale)
+					);
+				} else {
+					renderPlayerError(
+						playerTwoCard,
+						'Player 2',
+						playerTwoName,
+						playerTwoResult.error?.code ?? 'UNKNOWN_ERROR',
+						playerTwoResult.error?.message ?? 'Unknown error occurred.'
+					);
+				}
+
+				updateVerdict(playerOneName, playerOneResult, playerTwoName, playerTwoResult);
+
+				if (playerOneResult.ok || playerTwoResult.ok) {
+					setStatus('Battle complete.', 'success');
+				} else {
+					setStatus('Battle failed for both players. Check usernames and try again.', 'error');
+				}
+
+				setLoading(false);
+			});
+		</script>
 	</body>
 </html>
